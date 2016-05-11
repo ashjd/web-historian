@@ -74,5 +74,13 @@ exports.isUrlArchived = function(url, callback) {
   });
 };
 
-exports.downloadUrls = function() {
+exports.downloadUrls = function(urlArray) {
+  _.each(urlArray, function(url) {
+    //actually get the html somehow, replace empty string with the website html
+    fs.writeFile(exports.paths.archivedSites + '/' + url, '', 'utf8', function(error) {
+      if (error) {
+        throw error;
+      }
+    });
+  });
 };
