@@ -8,7 +8,7 @@ var handleRequest = function(request, response) {
   if (request.method === 'GET') {
      
     archive.isUrlArchived (request.url.slice(1), function(data) {
-      console.log (data, request.url.slice(1));
+     // console.log (data, request.url.slice(1));
 
       if (request.url === '/') {
         fs.readFile('./web/public/index.html', (err, data) => {
@@ -20,9 +20,9 @@ var handleRequest = function(request, response) {
           response.end(data);
         });
       } else if (data) {
-        console.log('file path', archive.paths.archivedSites + request.url);
+       // console.log('file path', archive.paths.archivedSites + request.url);
         fs.readFile (archive.paths.archivedSites + request.url, 'utf8', (error, data) => {
-          console.log ('data : ', data);
+       //   console.log ('data : ', data);
           if (error) {
             throw error;
           }
@@ -43,7 +43,7 @@ var handleRequest = function(request, response) {
       postData += chunk;
     });
     request.on('end', function() {
-      console.log('postData:', postData.slice(4), ':end of postData');
+   //   console.log('postData:', postData.slice(4), ':end of postData');
       archive.addUrlToList(postData.slice(4) + '\n', function() {
         statusCode = 302;
         response.writeHead(statusCode, headers.headers);

@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var http = require('http');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -30,7 +31,7 @@ exports.readListOfUrls = function(callback) {
     if (error) {
       throw error;
     }
-    console.log('data', data);
+   // console.log('data', data);
     data = data.split('\n');
     return callback(data);
   });
@@ -53,7 +54,7 @@ exports.addUrlToList = function(url, callback) {
         if (err) {
           throw err;
         }
-        console.log ('appended url');
+      //  console.log ('appended url');
         callback();
       });
     } 
@@ -76,11 +77,32 @@ exports.isUrlArchived = function(url, callback) {
 
 exports.downloadUrls = function(urlArray) {
   _.each(urlArray, function(url) {
-    //actually get the html somehow, replace empty string with the website html
-    fs.writeFile(exports.paths.archivedSites + '/' + url, '', 'utf8', function(error) {
-      if (error) {
-        throw error;
-      }
+    //console.log ('url = ', url);
+    var options = {
+      host: url,
+      method: 'GET'
+    };
+
+    var req = http.request(options, (res) => {
+      //console.log ('inside GET request');
+      res.setEncoding('utf8');
+      var content = '';
+      res.on('data', (chunk) => {
+        //console.log('chunk = ', chunk);
+        content += chunk;
+      });
+      res.on('end', () => {
+        //console.log ('content = ', content);
+        fs.writeFile (exports.paths.archivedSites + '/' + url, content, 'utf8', function(error) {
+          if (error) {
+            throw error;
+          }
+        });
+      });
     });
+    req.on('error', (e) => {
+      //console.log ('request error : ', e.message);
+    });
+    req.end(); 
   });
 };
