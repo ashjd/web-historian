@@ -44,10 +44,28 @@ var handleRequest = function(request, response) {
     });
     request.on('end', function() {
    //   console.log('postData:', postData.slice(4), ':end of postData');
-      archive.addUrlToList(postData.slice(4) + '\n', function() {
-        statusCode = 302;
-        response.writeHead(statusCode, headers.headers);
-        response.end();
+      var url = postData.slice(4);
+      archive.isUrlArchived(url, function(isArchived) {
+        if (isArchived) {
+          fs.readFile(archive.paths.archivedSites, (err, data) => {
+            if (err) {
+              throw err;
+            }
+            // serve archived
+          });
+        } else {
+          archive.addUrlToList(url + '\n', function() {
+            console.log('loading page:', archive.paths.siteAssets + '/loading.html');
+            fs.readFile(archive.paths.siteAssets + '/loading.html', (err, data) => {
+              if (err) {
+                throw err;
+              }
+              statusCode = 302;
+              response.writeHead(statusCode, headers.headers);
+              response.end(data);              
+            });
+          });
+        }
       });
     });
   } 
