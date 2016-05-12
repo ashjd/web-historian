@@ -38,8 +38,10 @@ exports.readListOfUrls = function(callback) {
 };
 
 exports.isUrlInList = function(url, callback) {
+  url = url.replace('\n', '');
   exports.readListOfUrls (function (data) {
     if (data.indexOf(url) !== -1) {
+      console.log('found url');
       return callback(true);
     } else {
       return callback(false);
@@ -48,20 +50,25 @@ exports.isUrlInList = function(url, callback) {
 };
 
 exports.addUrlToList = function(url, callback) {
+  url = url.replace('\n', ''); 
   exports.isUrlInList (url, function (data) {
+    console.log(data, url);
     if (!data) {
-      fs.appendFile (exports.paths.list, url, (err) => {
+      fs.appendFile (exports.paths.list, url + '\n', (err) => {
         if (err) {
           throw err;
         }
       //  console.log ('appended url');
         callback();
       });
-    } 
+    } else {
+      callback();
+    }
   });
 };
 
 exports.isUrlArchived = function(url, callback) {
+  url = url.replace('\n', '');
   fs.readdir(exports.paths.archivedSites, function(error, data) {
     if (error) {
       throw error;
