@@ -47,11 +47,13 @@ var handleRequest = function(request, response) {
       var url = postData.slice(4);
       archive.isUrlArchived(url, function(isArchived) {
         if (isArchived) {
-          fs.readFile(archive.paths.archivedSites, (err, data) => {
+          fs.readFile(archive.paths.archivedSites + '/' + url, (err, data) => {
             if (err) {
               throw err;
             }
-            // serve archived
+            statusCode = 302;
+            response.writeHead(statusCode, headers.headers);
+            response.end(data);  
           });
         } else {
           archive.addUrlToList(url + '\n', function() {
