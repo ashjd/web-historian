@@ -29,40 +29,40 @@ exports.initialize = function(pathsObj) {
 exports.readListOfUrls = function(callback) {
   fs.readFile(exports.paths.list, 'utf8', function(error, data) {
     if (error) {
-      throw error;
+      callback(error, null);
     }
    // console.log('data', data);
     data = data.split('\n');
-    return callback(data);
+    callback(null, data);
   });
 };
 
 exports.isUrlInList = function(url, callback) {
   url = url.replace('\n', '');
-  exports.readListOfUrls (function (data) {
+  exports.readListOfUrls (function (err, data) {
     if (data.indexOf(url) !== -1) {
       console.log('found url');
-      return callback(true);
+      return callback(null, true);
     } else {
-      return callback(false);
+      return callback(null, false);
     }
   });
 };
 
 exports.addUrlToList = function(url, callback) {
   url = url.replace('\n', ''); 
-  exports.isUrlInList (url, function (data) {
+  exports.isUrlInList (url, function (err, data) {
     console.log(data, url);
     if (!data) {
       fs.appendFile (exports.paths.list, url + '\n', (err) => {
         if (err) {
-          throw err;
+          callback(err, null);
         }
       //  console.log ('appended url');
-        callback();
+        callback(null, null);
       });
     } else {
-      callback();
+      callback(null, null);
     }
   });
 };
@@ -71,18 +71,18 @@ exports.isUrlArchived = function(url, callback) {
   url = url.replace('\n', '');
   fs.readdir(exports.paths.archivedSites, function(error, data) {
     if (error) {
-      throw error;
+      callback(error, null);
     }
     if (data.indexOf(url) !== -1) {
-      return callback(true);
+      callback(null, true);
     } else {
-      return callback(false);
+      callback(null, false);
     }
 
   });
 };
 
-exports.downloadUrls = function(urlArray) {
+exports.downloadUrls = function(urlArray, callback) {
   _.each(urlArray, function(url) {
     //console.log ('url = ', url);
     var options = {
@@ -102,7 +102,7 @@ exports.downloadUrls = function(urlArray) {
         //console.log ('content = ', content);
         fs.writeFile (exports.paths.archivedSites + '/' + url, content, 'utf8', function(error) {
           if (error) {
-            throw error;
+            callback(error, null);
           }
         });
       });
